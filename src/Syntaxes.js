@@ -52,7 +52,7 @@ export default {
     {
       description: "Used to detect when a specific vixio command is fired",
       name: "Vixio Command",
-      patterns: ["vixio command [%-string%]"],
+      patterns: ["vixio command event", "vixio command [%-string%]"],
       eventvalues: [
         "event-discordcommand",
         "event-user",
@@ -336,6 +336,58 @@ export default {
       ],
       examples: ["on message received:"],
     },
+    {
+      description: "Vixio's custom Discord command system",
+      name: "Discord Command",
+      patterns: ["discord command <([^\\s]+)( .+)?$>"],
+      eventvalues: [
+        "event-discordcommand",
+        "event-user",
+        "event-member",
+        "event-guildchannel",
+        "event-messagechannel",
+        "event-message",
+        "event-guild",
+        "event-bot",
+      ],
+      examples: [
+        "discord command cmd <member>:",
+        '\tprefixes: "hey ", "%mention tag of event-bot% ", ##',
+        "\taliases: info, user",
+        "\troles: Dev",
+        "\tdescription: Get some information about a user",
+        "\tusage: hey info <member>",
+        "\tbots: {@bot}",
+        "\texecutable in: guild",
+        "\ttrigger:",
+        '\t\tset {_} to a message builder',
+        '\t\tappend line "-=Who is %name of arg-1%=-"',
+        '\t\tappend line "Name: %name of arg-1%"',
+        '\t\tappend line "ID: %id of arg-1%"',
+        '\t\tappend line "Mention tag: %mention tag of arg-1%"',
+        '\t\tappend line "Status: %online status of arg-1%"',
+        "\t\treply with {_}",
+      ],
+    },
+    {
+      description:
+        "Fired when a user submits a modal (the pop-up form shown to them with the show modal effect). Read the submitted data with the value of / selected values of expressions.",
+      name: "On Modal Interaction Received",
+      patterns: ["modal (interaction|submit) receive[d] [seen by %-string%]"],
+      eventvalues: [
+        "event-user",
+        "event-messagechannel",
+        "event-member",
+        "event-bot",
+        "event-string",
+        "event-guild",
+        "event-guildchannel",
+      ],
+      examples: [
+        "on modal interaction received:",
+        '\treply with "Thanks! You wrote: %the value of "feedback"%"',
+      ],
+    },
   ],
   Conditions: [
     {
@@ -478,7 +530,7 @@ export default {
     },
     {
       description:
-        "This is for verified bots or bots that have enabled privileged intents and need to activate them in Vixio",
+        "This is for verified bots or bots that have enabled privileged intents and need to activate them in Vixio. The intents must be enabled before you login to your bot.",
       name: "Create Bot Scope",
       patterns: ["(make|create) vixio bot"],
       examples: [
@@ -536,6 +588,132 @@ export default {
         "\t\tcreate invite to event-channel:",
         "\t\t\tset the max usage of the invite to 1",
         '\t\treply with "Done!"',
+      ],
+    },
+    {
+      description:
+        "Creates a new button component. Set its label, style, emote, link url and disabled state inside the section, then add it to a row (or use it as a container section's accessory) to display it.",
+      name: "Make Button",
+      patterns: [
+        "(make|create) [a] [new] button [and store it in %-objects%]",
+      ],
+      examples: [
+        "make a new button and store it in {_button}:",
+        '\tset the label of the last made button to "Click me!"',
+        "\tset the style of the last made button to primary",
+        '\tset the id of the last made button to "my-button"',
+        "make a new row and store it in {_row}:",
+        "\tadd {_button} to components of the last made row",
+        "reply with {_row}",
+      ],
+    },
+    {
+      description:
+        "Creates a new Components V2 container – a bordered block that can hold container sections, a media gallery, separators and rows. Set its accent color and spoiler state, and add elements to it inside the section.",
+      name: "Make Container",
+      patterns: [
+        "(make|create) [a] [new] container [and store it in %-objects%]",
+      ],
+      examples: [
+        "command /panel:",
+        "\ttrigger:",
+        "\t\tmake a new container:",
+        '\t\t\tset the accent color of the container to "#FF0000"',
+        "\t\t\tadd a large separator to the elements of the container",
+        "\t\tsend last made container to event-channel with event-bot",
+      ],
+    },
+    {
+      description:
+        "Creates a new media gallery component, used inside a container to display a grid of images or videos. Add image/video urls directly to it, or add media gallery item expressions when you need a description or spoiler.",
+      name: "Make Media Gallery",
+      patterns: [
+        "(make|create) [a] [new] media gallery [and store it in %-objects%]",
+      ],
+      examples: [
+        "make a new media gallery and store it in {_gallery}:",
+        '\tadd "https://example.com/image1.png" to the last made media gallery',
+        '\tadd "https://example.com/image2.png" to the last made media gallery',
+        "add {_gallery} to elements of {_container}",
+      ],
+    },
+    {
+      description:
+        "Creates a new action row component, a horizontal container for up to 5 buttons or a single select menu. Add buttons/select menus to the components of the row.",
+      name: "Make Row",
+      patterns: ["(make|create) [a] [new] row [and store it in %-objects%]"],
+      examples: [
+        "command /panel:",
+        "\ttrigger:",
+        "\t\tmake a new button:",
+        '\t\t\tset the label of the button to "Confirm"',
+        "\t\tmake a new row:",
+        "\t\t\tadd last made button to the components of the row",
+        "\t\tsend last made row to event-channel with event-bot",
+      ],
+    },
+    {
+      description:
+        "Creates a new container section – a block of text with an accessory (such as a thumbnail or a button) next to it. Meant to be added to the elements of a container.",
+      name: "Make Container Section",
+      patterns: [
+        "(make|create) [a] [new] container section [and store it in %-objects%]",
+      ],
+      examples: [
+        "make a new container section and store it in {_section}:",
+        '\tadd "## Section Title" to elements of the last made container section',
+        "\tmake a new button and store it in {_button}:",
+        '\t\tset the label of the last made button to "Click me!"',
+        '\t\tset the id of the last made button to "section-button"',
+        "\tset the accessory of the last made container section to {_button}",
+        "add {_section} to elements of {_container}",
+      ],
+    },
+    {
+      description:
+        "Creates a new select menu component (a dropdown). Set its placeholder, min/max values and options (or entity types for a user/role/channel select), then place it in its own row.",
+      name: "Make Select Menu",
+      patterns: [
+        "(make|create) [a] [new] select menu [and store it in %-objects%]",
+      ],
+      examples: [
+        "command /panel:",
+        "\ttrigger:",
+        "\t\tmake a new select menu:",
+        '\t\t\tset the placeholder of the select menu to "Choose an option"',
+        '\t\t\tadd a select option with label "One" and value "1" to the options of the select menu',
+        "\t\tmake a new row:",
+        "\t\t\tadd last made select menu to the components of the row",
+      ],
+    },
+    {
+      description:
+        "Creates a new modal (a pop-up form). Set its heading and id, then add rows of text inputs to its components before showing it to an interaction with the show modal effect.",
+      name: "Make Modal",
+      patterns: [
+        "(make|create) [a] [new] modal [and store it in %-objects%]",
+      ],
+      examples: [
+        "on slash command received:",
+        "\tmake a new modal:",
+        '\t\tset the heading of the modal to "Feedback"',
+        '\t\tset the id of the modal to "feedback_modal"',
+        "\tshow modal last made modal to the current interaction",
+      ],
+    },
+    {
+      description:
+        "Creates a new text input component for a modal. Set its label, placeholder, style, min/max length, default value and required state, then add it to a row on a modal.",
+      name: "Make Text Input",
+      patterns: [
+        "(make|create) [a] [new] text input [and store it in %-objects%]",
+      ],
+      examples: [
+        "on slash command received:",
+        "\tmake a new text input:",
+        '\t\tset the label of the text input to "Your feedback"',
+        '\t\tset the id of the text input to "feedback"',
+        "\t\tset the input style of the text input to paragraph",
       ],
     },
   ],
@@ -980,7 +1158,7 @@ export default {
       description:
         "Lets you deafen or undeafen a member/user. They must be in a voice channel for this to take effect.",
       name: "Deafen user",
-      patterns: ["[<un>]deafen %members% [(with|using) %bot%]"],
+      patterns: ["[<un>]deafen %members% [(with|using) %bot/string%]"],
       examples: [
         "discord command $deaf <member>:",
         "\ttrigger:",
@@ -1010,7 +1188,7 @@ export default {
     {
       description: "Either guild mute a member, or guild unmute a member.",
       name: "Mute/UnMute a User/Member",
-      patterns: ["[<un>]mute %members% [(with|using) %bot%]"],
+      patterns: ["[<un>]mute %members% [(with|using) %bot/string%]"],
       examples: [
         "discord command $mute <member>:",
         "\ttrigger:",
@@ -1200,6 +1378,42 @@ export default {
       name: "Delete message",
       patterns: ["delete %message% with %bot/string%"],
       examples: ['delete event-message with "Jewel"'],
+    },
+    {
+      description:
+        "The general-purpose way to add to, set, remove from, subtract from, delete, or reset any changeable vixio value (message/embed/component builder properties, lists of objects, etc). Works the same way as Skript's built-in change syntax.",
+      name: "Change Value",
+      patterns: [
+        "(add|give) %objects% to (%~objects%) [(with|using) %-bot/string%]",
+        "increase %~objects% by (%objects%) [(with|using) %-bot/string%]",
+        "give %~objects% (%objects%) as %-bot/string%",
+        "set %~objects% to (%objects%) [(with|using) %-bot/string%]",
+        "remove (all|every) %objects% from (%~objects%) [(with|using) %-bot/string%]",
+        "(remove|subtract) %objects% from (%~objects%) [(with|using) %-bot/string%]",
+        "reduce %~objects% by (%objects%) [(with|using) %-bot/string%]",
+        "(delete|clear) (%~objects%) [(with|using) %-bot/string%]",
+        "reset (%~objects%) [(with|using) %-bot/string%]",
+      ],
+      examples: [
+        "command /panel:",
+        "\ttrigger:",
+        '\t\tset the discord name of event-channel to "general" with event-bot',
+        "\t\tremove event-role from the roles of event-member with event-bot",
+      ],
+    },
+    {
+      description:
+        "Show a previously made modal to the current (or a given) interaction. Must be the first response to that interaction.",
+      name: "Show Modal",
+      patterns: [
+        "show modal %object% [(to|for) [the] [current] interaction]",
+      ],
+      examples: [
+        "on slash command received:",
+        "\tmake a new modal:",
+        '\t\tset the heading of the modal to "Feedback"',
+        "\tshow modal last made modal to the current interaction",
+      ],
     },
   ],
   Expressions: [
@@ -1399,8 +1613,7 @@ export default {
         "\t\t\tset the name of the channel to arg-1",
         "\t\t\tset the nsfw state of the channel to arg-2",
         "\t\tcreate the last made channel in event-guild and store it in {_chnl}",
-        "\t\treply with \"I've successfully created a channel named `%arg-1%`",
-        ' ID: %id of {_chnl}%"',
+        "\t\treply with \"I've successfully created a channel named `%arg-1%` ID: %id of {_chnl}%\"",
       ],
     },
     {
@@ -1417,8 +1630,7 @@ export default {
         "\t\t\tset the name of the channel to arg-1 ",
         '\t\t\tset the parent of the channel to category named "xd"',
         "\t\tcreate the last made channel in event-guild and store it in {_chnl}",
-        "\t\treply with \"I've successfully created a channel named `%arg-1%`",
-        ' ID: %id of {_chnl}%"',
+        "\t\treply with \"I've successfully created a channel named `%arg-1%` ID: %id of {_chnl}%\"",
       ],
     },
     {
@@ -1435,8 +1647,7 @@ export default {
         "\t\t\tset the name of the channel to arg-1 ",
         '\t\t\tset the topic of the channel to "Hi Pika"',
         "\t\tcreate the last made channel in event-guild and store it in {_chnl}",
-        "\t\treply with \"I've successfully created a channel named `%arg-1%`",
-        ' ID: %id of {_chnl}%"',
+        "\t\treply with \"I've successfully created a channel named `%arg-1%` ID: %id of {_chnl}%\"",
       ],
     },
     {
@@ -1451,8 +1662,7 @@ export default {
         "\t\t\tset the name of the channel to arg-1 ",
         '\t\t\tset the topic of the channel to "Hi Pika"',
         "\t\tcreate the last made channel in event-guild and store it in {_chnl}",
-        "\t\treply with \"I've successfully created a channel named `%arg-1%`",
-        ' ID: %id of {_chnl}%"',
+        "\t\treply with \"I've successfully created a channel named `%arg-1%` ID: %id of {_chnl}%\"",
       ],
     },
     {
@@ -1460,8 +1670,8 @@ export default {
         "Get the bitrate of a voice channel. The default value is 64kbps for channel builders. Rates multiplied by 1000. You can set or reset this (resets to 64kbps)",
       name: "Bitrate of Voice Channel",
       patterns: [
-        "[the] bitrate[s] of %voicechannels%",
-        "%voicechannels%'[s] bitrate[s]",
+        "[the] bitrate[s] of %voicechannels/channels%",
+        "%voicechannels/channels%'[s] bitrate[s]",
       ],
       examples: [
         "discord command $bitrate <string> <number>:",
@@ -1473,8 +1683,8 @@ export default {
       description: "Get or sets the user limit of a voice channel",
       name: "User limit of Voice Channel",
       patterns: [
-        "[the] user limit[s] of %voicechannels%",
-        "%voicechannels%'[s] user limit[s]",
+        "[the] user limit[s] of %voicechannels/channels%",
+        "%voicechannels/channels%'[s] user limit[s]",
       ],
       examples: [
         "discord command $bitrate <string> <number>:",
@@ -1626,8 +1836,7 @@ export default {
       patterns: ["[the] last arg[ument][s]"],
       examples: [
         "discord command say <string>:",
-        "\tprefixes: !",
-        " . and ;",
+        "\tprefixes: !, . and ;",
         "\ttrigger:",
         "\t\treply with arg-1 # replies with the first argument",
       ],
@@ -1909,8 +2118,7 @@ export default {
         "[java[ ]]colo[u]r from rgb %number%(, | and )%number%(, | and )%number%",
       ],
       examples: [
-        "set {_color} to color from rgb 0",
-        " 0 and 0 # results in black",
+        "set {_color} to color from rgb 0, 0 and 0 # results in black",
         "set {_color} to black # results in black",
         'set {_color} to "black" parsed as a color  # results in black',
       ],
@@ -2014,8 +2222,7 @@ export default {
         "discord command user <text>:",
         "\ttrigger:",
         "\t\tset {_} to user with the name arg-1 in event-guild",
-        '\t\treply with "Oh',
-        ' found them! %discord name of {_}%##%discriminator of {_}%"',
+        '\t\treply with "Oh found them! %discord name of {_}%##%discriminator of {_}%"',
       ],
     },
     {
@@ -2046,8 +2253,7 @@ export default {
         "\t\t\tset the name of the channel to arg-1 ",
         '\t\t\tset the parent of the channel to category named "xd"',
         "\t\tcreate the last made channel in event-guild and store it in {_chnl}",
-        "\t\treply with \"I've successfully created a channel named `%arg-1%`",
-        ' ID: %id of {_chnl}%"',
+        "\t\treply with \"I've successfully created a channel named `%arg-1%` ID: %id of {_chnl}%\"",
       ],
     },
     {
@@ -2546,7 +2752,7 @@ export default {
       ],
     },
     {
-      description: "Create a new MessageBuilder",
+      description: "Create a new message builder",
       name: "Message Builder",
       patterns: ["a [new] message builder"],
       examples: ["set {e} to a new message builder"],
@@ -2850,6 +3056,709 @@ export default {
       name: "Zero width space",
       patterns: ["[a] zero width space"],
       examples: ["append zero width space to {_messageBuilder}"],
+    },
+    {
+      description:
+        "Get the URL/URI of an audio track's source.",
+      name: "Track URL",
+      patterns: [
+        "[the] track ur(i|l)[s] of %tracks%",
+        "%tracks%'[s] track ur(i|l)[s]",
+      ],
+      examples: ["broadcast the track url of last loaded track of event-bot"],
+    },
+    {
+      description: "The most recently created button (from the make button scope).",
+      name: "Last Made Button",
+      patterns: ["[the] last[ly] [(made|created)] button"],
+      examples: ['set the label of the last made button to "Click me!"'],
+    },
+    {
+      description:
+        "The most recently created container (from the make container scope).",
+      name: "Last Made Container",
+      patterns: ["[the] last[ly] [(made|created)] container"],
+      examples: ["send last made container to event-channel with event-bot"],
+    },
+    {
+      description:
+        "The most recently created container section (from the make container section scope).",
+      name: "Last Made Container Section",
+      patterns: ["[the] last[ly] [(made|created)] container section"],
+      examples: ['add "Hello!" to elements of the last made container section'],
+    },
+    {
+      description:
+        "The most recently created media gallery (from the make media gallery scope).",
+      name: "Last Made Media Gallery",
+      patterns: ["[the] last[ly] [(made|created)] media gallery"],
+      examples: [
+        'add "https://example.com/image.png" to the last made media gallery',
+      ],
+    },
+    {
+      description: "The most recently created action row (from the make row scope).",
+      name: "Last Made Row",
+      patterns: ["[the] last[ly] [(made|created)] row"],
+      examples: ["add last made row to the components of {_messageBuilder}"],
+    },
+    {
+      description:
+        "The most recently created select menu (from the make select menu scope).",
+      name: "Last Made Select Menu",
+      patterns: ["[the] last[ly] [(made|created)] select menu"],
+      examples: ["add last made select menu to the components of {_row}"],
+    },
+    {
+      description: "The most recently created message builder.",
+      name: "Last Made Message Builder",
+      patterns: ["[the] last[ly] [(made|created)] message builder"],
+      examples: ["add {_button} to components of the last made message builder"],
+    },
+    {
+      description: "The most recently created modal (from the make modal scope).",
+      name: "Last Made Modal",
+      patterns: ["[the] last[ly] [(made|created)] modal"],
+      examples: ["show modal last made modal to the current interaction"],
+    },
+    {
+      description:
+        "The most recently created text input (from the make text input scope).",
+      name: "Last Made Text Input",
+      patterns: ["[the] last[ly] [(made|created)] text input"],
+      examples: ["add last made text input to the components of {_row}"],
+    },
+    {
+      description:
+        "Create a media gallery item with an image/video source url, an optional description, and an optional spoiler state, ready to be added to a media gallery.",
+      name: "Media Gallery Item",
+      patterns: [
+        "[a] media gallery item with [the] source %string% [and description %-string%] [(and spoiler|and no spoiler)]",
+      ],
+      examples: [
+        'add a media gallery item with source "https://example.com/image.png" to {_gallery}',
+      ],
+    },
+    {
+      description:
+        "Create a thumbnail with an image source url, an optional description, and an optional spoiler state. Can be used as a container section's accessory.",
+      name: "Thumbnail",
+      patterns: [
+        "[a] thumbnail with [the] source %string% [and description %-string%] [(and spoiler|and no spoiler)]",
+      ],
+      examples: [
+        'set the accessory of {_section} to a thumbnail with source "https://example.com/icon.png"',
+      ],
+    },
+    {
+      description:
+        "Create a select menu option with a label and a value, plus an optional description, emote, and default state. Add it to a select menu's options.",
+      name: "Select Option",
+      patterns: [
+        "[a] select option with label %string% and value %string% [and description %-string%] [and emote %-emote%] [(and default|and no default)]",
+      ],
+      examples: [
+        'add a select option with label "One" and value "1" to the options of {_selectMenu}',
+      ],
+    },
+    {
+      description:
+        "Create a small or large separator, used to space out elements inside a container.",
+      name: "Separator",
+      patterns: ["[a] [(small|large)] separator"],
+      examples: ["add a small separator to elements of {_container}"],
+    },
+    {
+      description:
+        "Wrap a component (such as a select menu) with a label and an optional description, so it shows a title above it in a modal.",
+      name: "Label Wrapping",
+      patterns: [
+        "[a] label with text %string% [and description %-string%] (for|wrapping) %object%",
+      ],
+      examples: [
+        'add a label with text "Pick a role" wrapping {_selectMenu} to the components of {_modal}',
+      ],
+    },
+    {
+      description:
+        "Get the value a user typed into a specific text input (by its id) on a submitted modal. Use inside an on modal interaction received event.",
+      name: "Text Input Value",
+      patterns: ["[the] value of [text input] %string%"],
+      examples: [
+        "on modal interaction received:",
+        '\treply with "You said: %the value of "feedback"%"',
+      ],
+    },
+    {
+      description:
+        "Get the values a user selected on a specific select menu (by its id) on a submitted modal. Use inside an on modal interaction received event.",
+      name: "Select Menu Selected Values",
+      patterns: ["[the] selected values of [select menu] %string%"],
+      examples: [
+        "on modal interaction received:",
+        '\tloop the selected values of "colors":',
+        '\t\treply with "You picked: %loop-value%"',
+      ],
+    },
+    {
+      description: "Get or set the emote shown on a button.",
+      name: "Button Emote",
+      patterns: [
+        "[the] emote[s] of %buttonbuilders%",
+        "%buttonbuilders%'[s] emote[s]",
+      ],
+      examples: ['set the emote of {_button} to emote "🚀"'],
+    },
+    {
+      description: "Get or set the URL a link-style button opens when clicked.",
+      name: "Button Link URL",
+      patterns: [
+        "[the] link url[s] of %buttonbuilders%",
+        "%buttonbuilders%'[s] link url[s]",
+      ],
+      examples: ['set the link url of {_button} to "https://github.com"'],
+    },
+    {
+      description:
+        "Get or set the style of a button (e.g. primary, secondary, success, danger, link).",
+      name: "Button Style",
+      patterns: [
+        "[the] style[s] of %buttonbuilders%",
+        "%buttonbuilders%'[s] style[s]",
+      ],
+      examples: ["set the style of {_button} to primary"],
+    },
+    {
+      description:
+        "Get or set the list of components (buttons, select menus, or labels) contained inside a row, message builder, or modal.",
+      name: "Components Of",
+      patterns: [
+        "[the] component[s] of %rows/messagebuilders/modals%",
+        "%rows/messagebuilders/modals%'[s] component[s]",
+      ],
+      examples: ["add {_button} to the components of {_row}"],
+    },
+    {
+      description:
+        "Get or set the accent color (the colored bar down the left side) of a container.",
+      name: "Container Accent Color",
+      patterns: [
+        "[the] accent color[s] of %containers%",
+        "%containers%'[s] accent color[s]",
+      ],
+      examples: ['set the accent color of {_container} to "#FF0000"'],
+    },
+    {
+      description:
+        "Get or set whether a container is marked as a spoiler, blurring its contents until clicked.",
+      name: "Container Spoiler State",
+      patterns: [
+        "[the] spoiler state[s] of %containers%",
+        "%containers%'[s] spoiler state[s]",
+      ],
+      examples: ["set the spoiler state of {_container} to true"],
+    },
+    {
+      description:
+        "Get or set the list of elements (sections, media galleries, separators, rows, and even plain markdown text) contained inside a container or a container section.",
+      name: "Elements Of",
+      patterns: [
+        "[the] elements[s] of %containers/containersections%",
+        "%containers/containersections%'[s] elements[s]",
+      ],
+      examples: [
+        'add "## Pick some people or roles" to elements of {_container}',
+        "add {_row} to elements of {_container}",
+      ],
+    },
+    {
+      description:
+        "Get or set whether a button or select menu is disabled, preventing users from interacting with it.",
+      name: "Disabled State",
+      patterns: [
+        "[the] disabled state[s] of %buttonbuilders/selectmenus%",
+        "%buttonbuilders/selectmenus%'[s] disabled state[s]",
+      ],
+      examples: ["set the disabled state of {_button} to true"],
+    },
+    {
+      description:
+        "Get or set the custom id of a button, select menu, modal, or text input. This is the id you match against in the interaction events, and use to read modal values afterwards.",
+      name: "Component Id",
+      patterns: [
+        "[the] id[s] of %buttonbuilders/selectmenus/modals/textinputs%",
+        "%buttonbuilders/selectmenus/modals/textinputs%'[s] id[s]",
+      ],
+      examples: ['set the id of {_button} to "click_me"'],
+    },
+    {
+      description: "Get or set the label text shown on a button or a text input.",
+      name: "Component Label",
+      patterns: [
+        "[the] label[s] of %buttonbuilders/textinputs%",
+        "%buttonbuilders/textinputs%'[s] label[s]",
+      ],
+      examples: ['set the label of {_button} to "Confirm"'],
+    },
+    {
+      description:
+        "Get or set the placeholder text shown on a select menu or text input before the user types or selects anything.",
+      name: "Placeholder",
+      patterns: [
+        "[the] placeholder[s] of %selectmenus/textinputs%",
+        "%selectmenus/textinputs%'[s] placeholder[s]",
+      ],
+      examples: ['set the placeholder of {_selectMenu} to "Choose an option"'],
+    },
+    {
+      description:
+        "Get or set whether a select menu or text input must be filled in before a modal can be submitted.",
+      name: "Required State",
+      patterns: [
+        "[the] required state[s] of %selectmenus/textinputs%",
+        "%selectmenus/textinputs%'[s] required state[s]",
+      ],
+      examples: ["set the required state of {_textInput} to true"],
+    },
+    {
+      description:
+        "Get or set the accessory (a thumbnail or a button) shown next to a container section's text.",
+      name: "Section Accessory",
+      patterns: [
+        "[the] accessory[s] of %containersections%",
+        "%containersections%'[s] accessory[s]",
+      ],
+      examples: ["set the accessory of {_section} to {_button}"],
+    },
+    {
+      description:
+        "Get or set which entity types a select menu lets users pick from, added individually as 'user type', 'role type' or 'channel type'. Only applies to entity-select menus rather than string-option select menus.",
+      name: "Select Menu Entity Types",
+      patterns: [
+        "[the] entity type[s] of %selectmenus%",
+        "%selectmenus%'[s] entity type[s]",
+      ],
+      examples: [
+        "add user type to entity types of {_selectMenu}",
+        "add role type to entity types of {_selectMenu}",
+      ],
+    },
+    {
+      description: "Get or set the maximum number of options a user may pick on a select menu.",
+      name: "Select Menu Max Values",
+      patterns: [
+        "[the] max[imum] value[s] of %selectmenus%",
+        "%selectmenus%'[s] max[imum] value[s]",
+      ],
+      examples: ["set the max values of {_selectMenu} to 3"],
+    },
+    {
+      description: "Get or set the minimum number of options a user must pick on a select menu.",
+      name: "Select Menu Min Values",
+      patterns: [
+        "[the] min[imum] value[s] of %selectmenus%",
+        "%selectmenus%'[s] min[imum] value[s]",
+      ],
+      examples: ["set the min values of {_selectMenu} to 1"],
+    },
+    {
+      description: "Get or set the list of selectable options on a select menu.",
+      name: "Select Menu Options",
+      patterns: [
+        "[the] option[s] of %selectmenus%",
+        "%selectmenus%'[s] option[s]",
+      ],
+      examples: [
+        'add a select option with label "One" and value "1" to the options of {_selectMenu}',
+      ],
+    },
+    {
+      description: "Get or set the heading (title) shown at the top of a modal.",
+      name: "Modal Heading",
+      patterns: ["[the] heading[s] of %modals%", "%modals%'[s] heading[s]"],
+      examples: ['set the heading of {_modal} to "Feedback"'],
+    },
+    {
+      description: "Get or set the text pre-filled into a text input before the user edits it.",
+      name: "Text Input Default Value",
+      patterns: [
+        "[the] default value[s] of %textinputs%",
+        "%textinputs%'[s] default value[s]",
+      ],
+      examples: ['set the default value of {_textInput} to "N/A"'],
+    },
+    {
+      description: "Get or set the small helper text shown below a text input.",
+      name: "Text Input Helper Text",
+      patterns: [
+        "[the] helper text[s] of %textinputs%",
+        "%textinputs%'[s] helper text[s]",
+      ],
+      examples: [
+        'set the helper text of {_textInput} to "Tell us what you think"',
+      ],
+    },
+    {
+      description: "Get or set the maximum number of characters allowed in a text input.",
+      name: "Text Input Max Length",
+      patterns: [
+        "[the] max[imum] length[s] of %textinputs%",
+        "%textinputs%'[s] max[imum] length[s]",
+      ],
+      examples: ["set the maximum length of {_textInput} to 500"],
+    },
+    {
+      description: "Get or set the minimum number of characters required in a text input.",
+      name: "Text Input Min Length",
+      patterns: [
+        "[the] min[imum] length[s] of %textinputs%",
+        "%textinputs%'[s] min[imum] length[s]",
+      ],
+      examples: ["set the minimum length of {_textInput} to 10"],
+    },
+    {
+      description:
+        "Get or set the style of a text input – short for a single line, or paragraph for a multi-line box.",
+      name: "Text Input Style",
+      patterns: [
+        "[the] input style[s] of %textinputs%",
+        "%textinputs%'[s] input style[s]",
+      ],
+      examples: ["set the input style of {_textInput} to paragraph"],
+    },
+  ],
+  Types: [
+    {
+      description:
+        "A Discord server. Holds channels, roles, members, emotes and more.",
+      name: "Guild",
+      patterns: ["%guild%"],
+      examples: ["broadcast the discord name of event-guild"],
+    },
+    {
+      description:
+        "A Discord user, which may or may not be a member of any guild the bot shares with them.",
+      name: "User",
+      patterns: ["%user%"],
+      examples: ["broadcast the discord name of event-user"],
+    },
+    {
+      description:
+        "A user as a member of a specific guild – holds their nickname, roles, and voice state in that guild.",
+      name: "Member",
+      patterns: ["%member%"],
+      examples: ["broadcast the roles of event-member"],
+    },
+    {
+      description:
+        "One of your Vixio bots, referenced either as the account created in a create bot scope, or by its login name.",
+      name: "Bot",
+      patterns: ["%bot%"],
+      examples: ['join event-channel with "Jewel"'],
+    },
+    {
+      description:
+        "The general channel type, covering both text and voice channels.",
+      name: "Channel",
+      patterns: ["%channel%"],
+      examples: ["broadcast the discord name of event-channel"],
+    },
+    {
+      description: "A text channel a bot can send and read messages in.",
+      name: "Text Channel",
+      patterns: ["%textchannel%"],
+      examples: ["send typing to event-channel with event-bot"],
+    },
+    {
+      description:
+        "A voice channel that bots and members can join to talk or play audio.",
+      name: "Voice Channel",
+      patterns: ["%voicechannel%"],
+      examples: ["join event-channel with event-bot"],
+    },
+    {
+      description:
+        "Any channel or DM a message can be sent to, covering both text channels and users.",
+      name: "Message Channel",
+      patterns: ["%messagechannel%"],
+      examples: ["send typing to event-messagechannel with event-bot"],
+    },
+    {
+      description:
+        "A not-yet-created channel you configure (name, topic, nsfw state, parent, etc) before creating it in a guild.",
+      name: "Channel Builder",
+      patterns: ["%channelbuilder%"],
+      examples: ["create text channel:"],
+    },
+    {
+      description:
+        "What kind of channel something is, e.g. TEXT, VOICE, CATEGORY (Discord's own uppercase channel type names).",
+      name: "Channel Type",
+      patterns: ["%channeltype%"],
+      examples: ["broadcast the type of event-channel"],
+    },
+    {
+      description: "A category that groups channels together in a guild.",
+      name: "Category",
+      patterns: ["%category%"],
+      examples: ["broadcast the channels of {_category}"],
+    },
+    {
+      description: "A role in a guild, used for permissions and organizing members.",
+      name: "Role",
+      patterns: ["%role%"],
+      examples: ['set {_role} to role named "Admin" in event-guild'],
+    },
+    {
+      description:
+        "A Discord permission (such as manage messages or kick members) that can be allowed or denied for a role or member.",
+      name: "Permission",
+      patterns: ["%permission%"],
+      examples: ['allow {_role} the permission "manage messages" in event-channel'],
+    },
+    {
+      description: "A Discord emoji or custom server emote, used for reactions and buttons.",
+      name: "Emote",
+      patterns: ["%emote%"],
+      examples: ['add emote "👍" to event-message with event-bot'],
+    },
+    {
+      description:
+        "A message sent in a text channel or DM. Holds the content, author, embeds, attachments, and reactions.",
+      name: "Message",
+      patterns: ["%message%"],
+      examples: ['reply to event-message with mention and say "Hi!"'],
+    },
+    {
+      description:
+        "A not-yet-sent message you build up with text, embeds, and components before sending it.",
+      name: "Message Builder Type",
+      patterns: ["%messagebuilder%"],
+      examples: ["set {_msg} to a new message builder"],
+    },
+    {
+      description:
+        "A not-yet-sent embed you configure (title, description, fields, color, etc) before attaching it to a message.",
+      name: "Embed Builder",
+      patterns: ["%embedbuilder%"],
+      examples: ["make a new embed:"],
+    },
+    {
+      description: "The title of an embed, made of text and an optional link url.",
+      name: "Title",
+      patterns: ["%title%"],
+      examples: ['set the title of {_embed} to a title with the text "Welcome!"'],
+    },
+    {
+      description:
+        "The author section of an embed, made of a name, an optional icon, and an optional url.",
+      name: "Author Info",
+      patterns: ["%authorinfo%"],
+      examples: ['set the author of {_embed} to an author named "Vixio"'],
+    },
+    {
+      description: "The footer of an embed, made of text and an optional icon.",
+      name: "Footer",
+      patterns: ["%footer%"],
+      examples: ['set the footer of {_embed} to a footer with the text "Powered by Vixio"'],
+    },
+    {
+      description: "A named field on an embed, holding a value and whether it's inline or split.",
+      name: "Field",
+      patterns: ["%field%"],
+      examples: ['add a field named "Status" with the value "Online" to the fields of {_embed}'],
+    },
+    {
+      description:
+        "A small image shown on an embed or a container section, made from a source url.",
+      name: "Thumbnail Type",
+      patterns: ["%thumbnail%"],
+      examples: [
+        'set the icon of {_embed} to a thumbnail with source "https://example.com/img.png"',
+      ],
+    },
+    {
+      description: "Information about an image attached to an embed, including its url and dimensions.",
+      name: "Image Info",
+      patterns: ["%imageinfo%"],
+      examples: ["broadcast the width of the image of {_embed}"],
+    },
+    {
+      description: "A user or bot's avatar/profile picture. Stringifies directly to its url.",
+      name: "Avatar",
+      patterns: ["%avatar%"],
+      examples: ['reply with "%avatar of event-user%"'],
+    },
+    {
+      description: "A file attached to a message, such as an image or document.",
+      name: "Attachment",
+      patterns: ["%attachment%"],
+      examples: ["loop attachments of event-message:"],
+    },
+    {
+      description:
+        "A color, either a named color (like red or blue) or one built from RGB values, used for embeds and role/container colors.",
+      name: "Color Type",
+      patterns: ["%javacolor%"],
+      examples: ["set the accent color of {_container} to blue"],
+    },
+    {
+      description: "An invite link to a guild, created for a specific channel.",
+      name: "Invite",
+      patterns: ["%invite%"],
+      examples: ["broadcast the invite url of last created invite"],
+    },
+    {
+      description: "An enum representing a user's presence, such as online, idle, do not disturb, or offline.",
+      name: "Online Status",
+      patterns: ["%onlinestatus%"],
+      examples: ["if the online status of event-user is online:"],
+    },
+    {
+      description:
+        "An enum representing the kind of activity a bot/user's presence shows, such as playing, streaming, listening, or watching.",
+      name: "Activity Type",
+      patterns: ["%gametype%"],
+      examples: ['mark event-bot as playing with title "Skript"'],
+    },
+    {
+      description:
+        "An enum representing a guild's verification level (none, low, medium, high, very high) requirement for new members.",
+      name: "Verification Level",
+      patterns: ["%verificationlevel%"],
+      examples: ["if the discord verification level of event-guild is high:"],
+    },
+    {
+      description:
+        "An enum representing a Discord gateway intent (e.g. guild members, presences, message content) that a bot can request when it logs in.",
+      name: "Gateway Intent",
+      patterns: ["%gatewayintent%"],
+      examples: ["enable the guild members intent"],
+    },
+    {
+      description:
+        "A registered discord command (message-based or slash), holding its aliases, prefixes, usage and description.",
+      name: "Discord Command Type",
+      patterns: ["%discordcommand%"],
+      examples: ["loop all discord commands:"],
+    },
+    {
+      description:
+        "A loaded/playing audio track, such as a song a bot is playing in a voice channel.",
+      name: "Track",
+      patterns: ["%track%"],
+      examples: ["broadcast the track url of last loaded track of event-bot"],
+    },
+    {
+      description:
+        "An enum representing a music/media site the search effect can query, such as youtube or soundcloud.",
+      name: "Searchable Site",
+      patterns: ["%searchablesite%"],
+      examples: ['search youtube for "%player%" and store the results in {_results::*}'],
+    },
+    {
+      description:
+        "A Components V2 container – a bordered block holding container sections, a media gallery, separators and rows.",
+      name: "Container",
+      patterns: ["%container%"],
+      examples: ["make a new container:"],
+    },
+    {
+      description:
+        "A block of text with an accessory (like a thumbnail or button) beside it, placed inside a container.",
+      name: "Container Section",
+      patterns: ["%containersection%"],
+      examples: ["make a new container section:"],
+    },
+    {
+      description:
+        "A thumbnail used specifically as a container section's accessory.",
+      name: "Section Thumbnail",
+      patterns: ["%sectionthumbnail%"],
+      examples: [
+        'set the accessory of {_section} to a thumbnail with source "https://example.com/icon.png"',
+      ],
+    },
+    {
+      description:
+        "A Components V2 gallery component that displays a grid of images/videos inside a container.",
+      name: "Media Gallery",
+      patterns: ["%mediagallery%"],
+      examples: [
+        "make a new media gallery and store it in {_gallery}:",
+        '\tadd "https://example.com/image1.png" to the last made media gallery',
+      ],
+    },
+    {
+      description: "A single image/video entry in a media gallery, made from a source url.",
+      name: "Media Gallery Item Type",
+      patterns: ["%mediagalleryitem%"],
+      examples: [
+        'add a media gallery item with source "https://example.com/image.png" to {_gallery}',
+      ],
+    },
+    {
+      description: "An action row component, a horizontal container holding up to 5 buttons or a single select menu.",
+      name: "Row",
+      patterns: ["%row%"],
+      examples: ["make a new row:"],
+    },
+    {
+      description:
+        "A not-yet-sent button component you configure (label, style, emote, id) before adding it to a row.",
+      name: "Button Builder",
+      patterns: ["%buttonbuilder%"],
+      examples: ["make a new button:"],
+    },
+    {
+      description: "An enum representing how a button is displayed: primary, secondary, success, danger, or link.",
+      name: "Button Style Type",
+      patterns: ["%buttonstyle%"],
+      examples: ["set the style of {_button} to danger"],
+    },
+    {
+      description:
+        "A dropdown component letting a user pick one or more options, or entities like users/roles/channels.",
+      name: "Select Menu",
+      patterns: ["%selectmenu%"],
+      examples: ["make a new select menu:"],
+    },
+    {
+      description:
+        "A single choice on a select menu, made of a label, a value, and optional description/emote.",
+      name: "Select Option Type",
+      patterns: ["%selectoption%"],
+      examples: [
+        'add a select option with label "One" and value "1" to the options of {_selectMenu}',
+      ],
+    },
+    {
+      description:
+        "An enum used with entity-select menus to say what they let users pick. Literal values are 'user type', 'role type' and 'channel type'.",
+      name: "Select Target",
+      patterns: ["%selecttarget%"],
+      examples: ["add user type to entity types of {_selectMenu}"],
+    },
+    {
+      description:
+        "A text box component on a modal that a user fills in when submitting the form.",
+      name: "Text Input",
+      patterns: ["%textinput%"],
+      examples: ["make a new text input:"],
+    },
+    {
+      description:
+        "An enum representing whether a text input on a modal is a single-line (short) or multi-line (paragraph) box.",
+      name: "Text Input Style Type",
+      patterns: ["%textinputstyle%"],
+      examples: ["set the input style of {_textInput} to paragraph"],
+    },
+    {
+      description:
+        "A pop-up form shown to a user, made of rows of text inputs, submitted via the on modal submit received event.",
+      name: "Modal",
+      patterns: ["%modal%"],
+      examples: ["make a new modal:"],
     },
   ],
 };

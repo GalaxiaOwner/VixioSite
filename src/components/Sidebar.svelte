@@ -14,5 +14,6 @@
         <li><a href="#conditions">Conditions</a></li>
         <li><a href="#effects">Effects</a></li>
         <li><a href="#expressions">Expressions</a></li>
+        <li><a href="#types">Types</a></li>
     </ul>
 </aside>
