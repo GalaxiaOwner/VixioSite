@@ -1517,15 +1517,6 @@ export default {
     },
     {
       description:
-        "Get how many music players a bot currently has active (i.e. how many guilds it's playing or has queued audio in).",
-      name: "Number of Music Players",
-      patterns: ["[the] number of [music] players of %bot%"],
-      examples: [
-        'broadcast "%event-bot% has %the number of players of event-bot% active music players"',
-      ],
-    },
-    {
-      description:
         "Get the type of game a user, a bot, or a bot specified by name is playing.",
       name: "Game type",
       patterns: [
