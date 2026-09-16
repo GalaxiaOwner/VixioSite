@@ -716,6 +716,47 @@ export default {
         "\t\tset the input style of the text input to paragraph",
       ],
     },
+    {
+      description:
+        "Creates a new standalone checkbox toggle. Set its label and id, then add it to a modal (optionally wrapped with a label).",
+      name: "Make Checkbox",
+      patterns: [
+        "(make|create) [a] [new] checkbox [and store it in %-objects%]",
+      ],
+      examples: [
+        "make a new checkbox and store it in {_agree}:",
+        '\tset the label of the last made checkbox to "I agree to the rules"',
+        '\tset the id of the last made checkbox to "agree"',
+      ],
+    },
+    {
+      description:
+        "Creates a new checkbox group – a set of checkbox options a user can tick multiple of on a modal. Set its id and add checkbox options to it.",
+      name: "Make Checkbox Group",
+      patterns: [
+        "(make|create) [a] [new] checkbox group [and store it in %-objects%]",
+      ],
+      examples: [
+        "make a new checkbox group and store it in {_group}:",
+        '\tset the id of the last made checkbox group to "toppings"',
+        '\tadd a checkbox option with label "Pepperoni" and value "pepperoni" to options of the last made checkbox group',
+        '\tadd a checkbox option with label "Mushroom" and value "mushroom" to options of the last made checkbox group',
+      ],
+    },
+    {
+      description:
+        "Creates a new radio group – a set of radio options a user can pick exactly one of on a modal. Set its id and add radio options to it.",
+      name: "Make Radio Group",
+      patterns: [
+        "(make|create) [a] [new] radio group [and store it in %-objects%]",
+      ],
+      examples: [
+        "make a new radio group and store it in {_group}:",
+        '\tset the id of the last made radio group to "size"',
+        '\tadd a radio option with label "Small" and value "small" to options of the last made radio group',
+        '\tadd a radio option with label "Large" and value "large" to options of the last made radio group',
+      ],
+    },
   ],
   Effects: [
     {
@@ -1472,6 +1513,15 @@ export default {
         "\t\t\tstop",
         "\t\tset the volume of event-bot to arg-1",
         '\t\treply with "My volume is now: `%volume of event-bot%`"',
+      ],
+    },
+    {
+      description:
+        "Get how many music players a bot currently has active (i.e. how many guilds it's playing or has queued audio in).",
+      name: "Number of Music Players",
+      patterns: ["[the] number of [music] players of %bot%"],
+      examples: [
+        'broadcast "%event-bot% has %the number of players of event-bot% active music players"',
       ],
     },
     {
@@ -3130,6 +3180,83 @@ export default {
     },
     {
       description:
+        "The most recently created checkbox (from the make checkbox scope).",
+      name: "Last Made Checkbox",
+      patterns: ["[the] last[ly] [(made|created)] checkbox"],
+      examples: ['set the label of the last made checkbox to "I agree to the rules"'],
+    },
+    {
+      description:
+        "The most recently created checkbox group (from the make checkbox group scope).",
+      name: "Last Made Checkbox Group",
+      patterns: ["[the] last[ly] [(made|created)] checkbox group"],
+      examples: [
+        'add a checkbox option with label "Pepperoni" and value "pepperoni" to options of the last made checkbox group',
+      ],
+    },
+    {
+      description:
+        "The most recently created radio group (from the make radio group scope).",
+      name: "Last Made Radio Group",
+      patterns: ["[the] last[ly] [(made|created)] radio group"],
+      examples: [
+        'add a radio option with label "Large" and value "large" to options of the last made radio group',
+      ],
+    },
+    {
+      description:
+        "Create a checkbox option with a label and a value, plus an optional description and default-checked state. Add it to a checkbox group's options.",
+      name: "Checkbox Option",
+      patterns: [
+        "[a] checkbox option with label %string% and value %string% [and description %-string%] [(and default|and no default)]",
+      ],
+      examples: [
+        'add a checkbox option with label "Pepperoni" and value "pepperoni" to options of {_group}',
+      ],
+    },
+    {
+      description:
+        "Create a radio option with a label and a value, plus an optional description and default-selected state. Add it to a radio group's options.",
+      name: "Radio Option",
+      patterns: [
+        "[a] radio option with label %string% and value %string% [and description %-string%] [(and default|and no default)]",
+      ],
+      examples: [
+        'add a radio option with label "Large" and value "large" to options of {_group}',
+      ],
+    },
+    {
+      description: "Get or set whether a standalone checkbox is checked.",
+      name: "Checkbox Checked State",
+      patterns: [
+        "[the] checked state[s] of %checkboxes%",
+        "%checkboxes%'[s] checked state[s]",
+      ],
+      examples: ["set the checked state of {_checkbox} to true"],
+    },
+    {
+      description:
+        "Get whether a specific standalone checkbox (by its id) was checked on a submitted modal. Use inside an on modal interaction received event.",
+      name: "Modal Checkbox Checked",
+      patterns: ["[the] checked state of checkbox %string%"],
+      examples: [
+        "on modal interaction received:",
+        '\tif the checked state of checkbox "agree" is true:',
+        '\t\treply with "Thanks for agreeing!"',
+      ],
+    },
+    {
+      description:
+        "Get the value of whichever option was picked in a specific radio group (by its id) on a submitted modal. Use inside an on modal interaction received event.",
+      name: "Radio Group Selected Value",
+      patterns: ["[the] selected value of radio group %string%"],
+      examples: [
+        "on modal interaction received:",
+        '\treply with "You picked: %the selected value of radio group "size"%"',
+      ],
+    },
+    {
+      description:
         "Create a media gallery item with an image/video source url, an optional description, and an optional spoiler state, ready to be added to a media gallery.",
       name: "Media Gallery Item",
       patterns: [
@@ -3191,9 +3318,9 @@ export default {
     },
     {
       description:
-        "Get the values a user selected on a specific select menu (by its id) on a submitted modal. Use inside an on modal interaction received event.",
-      name: "Select Menu Selected Values",
-      patterns: ["[the] selected values of [select menu] %string%"],
+        "Get the values a user selected on a specific select menu or checkbox group (by its id) on a submitted modal. Use inside an on modal interaction received event.",
+      name: "Selected Values",
+      patterns: ["[the] selected values of [select menu|checkbox group] %string%"],
       examples: [
         "on modal interaction received:",
         '\tloop the selected values of "colors":',
@@ -3283,11 +3410,11 @@ export default {
     },
     {
       description:
-        "Get or set the custom id of a button, select menu, modal, or text input. This is the id you match against in the interaction events, and use to read modal values afterwards.",
+        "Get or set the custom id of a button, select menu, radio group, checkbox group, checkbox, modal, or text input. This is the id you match against in the interaction events, and use to read modal values afterwards.",
       name: "Component Id",
       patterns: [
-        "[the] id[s] of %buttonbuilders/selectmenus/modals/textinputs%",
-        "%buttonbuilders/selectmenus/modals/textinputs%'[s] id[s]",
+        "[the] id[s] of %buttonbuilders/selectmenus/radiogroups/checkboxgroups/checkboxes/modals/textinputs%",
+        "%buttonbuilders/selectmenus/radiogroups/checkboxgroups/checkboxes/modals/textinputs%'[s] id[s]",
       ],
       examples: ['set the id of {_button} to "click_me"'],
     },
@@ -3312,11 +3439,11 @@ export default {
     },
     {
       description:
-        "Get or set whether a select menu or text input must be filled in before a modal can be submitted.",
+        "Get or set whether a select menu, radio group, checkbox group, or text input must be filled in before a modal can be submitted.",
       name: "Required State",
       patterns: [
-        "[the] required state[s] of %selectmenus/textinputs%",
-        "%selectmenus/textinputs%'[s] required state[s]",
+        "[the] required state[s] of %selectmenus/radiogroups/checkboxgroups/textinputs%",
+        "%selectmenus/radiogroups/checkboxgroups/textinputs%'[s] required state[s]",
       ],
       examples: ["set the required state of {_textInput} to true"],
     },
@@ -3344,29 +3471,32 @@ export default {
       ],
     },
     {
-      description: "Get or set the maximum number of options a user may pick on a select menu.",
-      name: "Select Menu Max Values",
+      description:
+        "Get or set the maximum number of options a user may pick on a select menu or checkbox group.",
+      name: "Max Values",
       patterns: [
-        "[the] max[imum] value[s] of %selectmenus%",
-        "%selectmenus%'[s] max[imum] value[s]",
+        "[the] max[imum] value[s] of %selectmenus/checkboxgroups%",
+        "%selectmenus/checkboxgroups%'[s] max[imum] value[s]",
       ],
       examples: ["set the max values of {_selectMenu} to 3"],
     },
     {
-      description: "Get or set the minimum number of options a user must pick on a select menu.",
-      name: "Select Menu Min Values",
+      description:
+        "Get or set the minimum number of options a user must pick on a select menu or checkbox group.",
+      name: "Min Values",
       patterns: [
-        "[the] min[imum] value[s] of %selectmenus%",
-        "%selectmenus%'[s] min[imum] value[s]",
+        "[the] min[imum] value[s] of %selectmenus/checkboxgroups%",
+        "%selectmenus/checkboxgroups%'[s] min[imum] value[s]",
       ],
       examples: ["set the min values of {_selectMenu} to 1"],
     },
     {
-      description: "Get or set the list of selectable options on a select menu.",
-      name: "Select Menu Options",
+      description:
+        "Get or set the list of selectable options on a select menu, radio group, or checkbox group.",
+      name: "Options Of",
       patterns: [
-        "[the] option[s] of %selectmenus%",
-        "%selectmenus%'[s] option[s]",
+        "[the] option[s] of %selectmenus/radiogroups/checkboxgroups%",
+        "%selectmenus/radiogroups/checkboxgroups%'[s] option[s]",
       ],
       examples: [
         'add a select option with label "One" and value "1" to the options of {_selectMenu}',
@@ -3759,6 +3889,54 @@ export default {
       name: "Modal",
       patterns: ["%modal%"],
       examples: ["make a new modal:"],
+    },
+    {
+      description:
+        "A standalone checkbox toggle component you can place on a modal, separate from a checkbox group. Read its state back after submission with the modal checkbox checked expression.",
+      name: "Checkbox",
+      patterns: ["%checkbox%"],
+      examples: [
+        "make a new checkbox and store it in {_agree}:",
+        '\tset the id of the last made checkbox to "agree"',
+      ],
+    },
+    {
+      description:
+        "A Components V2 group of checkbox options shown together on a modal, letting a user tick zero or more of them.",
+      name: "Checkbox Group",
+      patterns: ["%checkboxgroup%"],
+      examples: [
+        "make a new checkbox group and store it in {_group}:",
+        '\tset the id of the last made checkbox group to "toppings"',
+      ],
+    },
+    {
+      description:
+        "A single option inside a checkbox group, made of a label and a value, with an optional description and default-checked state.",
+      name: "Checkbox Option Type",
+      patterns: ["%checkboxoption%"],
+      examples: [
+        'add a checkbox option with label "Pepperoni" and value "pepperoni" to options of {_group}',
+      ],
+    },
+    {
+      description:
+        "A Components V2 group of radio options shown together on a modal, letting a user pick exactly one of them.",
+      name: "Radio Group",
+      patterns: ["%radiogroup%"],
+      examples: [
+        "make a new radio group and store it in {_group}:",
+        '\tset the id of the last made radio group to "size"',
+      ],
+    },
+    {
+      description:
+        "A single option inside a radio group, made of a label and a value, with an optional description and default-selected state.",
+      name: "Radio Option Type",
+      patterns: ["%radiooption%"],
+      examples: [
+        'add a radio option with label "Large" and value "large" to options of {_group}',
+      ],
     },
   ],
 };
